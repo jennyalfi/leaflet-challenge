@@ -1,3 +1,11 @@
+
+// Import and visualize the data by doing the following:
+// Using Leaflet, create a map that plots all the earthquakes from your dataset based on their longitude and latitude.
+// Your data markers should reflect the magnitude of the earthquake by their size and the depth of the earthquake by color.
+// Earthquakes with higher magnitudes should appear larger, and earthquakes with greater depth should appear darker in color.
+// Include popups that provide additional information about the earthquake when its associated marker is clicked. (Location, mag, depth, date/time)
+// Create a legend that will provide context for your map data.
+
 // Store our USGS API endpoint as queryUrl.
 let street = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution:
@@ -40,13 +48,6 @@ L.control
 let queryUrl =
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
-// Import and visualize the data by doing the following:
-// Using Leaflet, create a map that plots all the earthquakes from your dataset based on their longitude and latitude.
-// Your data markers should reflect the magnitude of the earthquake by their size and the depth of the earthquake by color.
-// Earthquakes with higher magnitudes should appear larger, and earthquakes with greater depth should appear darker in color.
-// Include popups that provide additional information about the earthquake when its associated marker is clicked. (Location, mag, depth, date/time)
-// Create a legend that will provide context for your map data.
-
 // Perform a GET request to the query URL/
 d3.json(queryUrl).then(function (data) {
   // Once we get a response, send the data.features object to the createFeatures function.
@@ -66,23 +67,6 @@ d3.json(queryUrl).then(function (data) {
   // function myOnEachFeature(feature, layer) {
   //   layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}</p>`);
   // }
-
-  // This is where to add any customization. Can add popup, change icon, do conditions.
-  // Use layer. to make adjustments. Can add features, do color conditionals
-  // Ahmad demonstrated it as another function with added layer, earthquakeData2 (see screenshot about 30 min in)
-  // Earthquake depth is marker opacity
-  //   let myMarkers = [];
-  //   // Loop through locations, and create the circle markers.
-  //   for (let i = 0; i < feature; i++) {
-  //       myMarkers.push(
-  //           L.circle(feature[i].geometry.coordinates[1],(feature[i].geometry.coordinates[0]), {
-  //             stroke: false,
-  //             fillOpacity: chooseColor,
-  //             color: chooseColor,
-  //             fillColor: chooseColor,
-  //             radius: markerSize(feature[i].properties.mag)
-  //           })
-  //         );
 
   function chooseColor(depth) {
     if (depth <= 1.0) {
@@ -119,18 +103,7 @@ d3.json(queryUrl).then(function (data) {
     }
     return mag * 2;
   }
-  //     function styleMyMap(feature){
-  //         return {
-  //             color:"red",
-  //             fillColor: ChooseColor(feature.geometry.coordinates[2]),
-  //             fillOpacity: ChooseColor(feature.geometry.coordinates[2]),
-  //             weight: 1.5
-  //         }
-  //     }
-
-  //
-
-  // Create a GeoJSON layer that contains the features array on the earthquakeData object.
+ 
   // Run the onEachFeature function once for each piece of data in the array.
   L.geoJSON(data, {
     onEachFeature: function (feature, layer) {
@@ -147,14 +120,8 @@ d3.json(queryUrl).then(function (data) {
   }).addTo(earthquakes);
   earthquakes.addTo(myMap);
 
-  // Send our earthquakes layer to the createMap function/
-  //   createMap(earthquakes);
 });
 
-//function createMap(earthquakes) {
-// Create the base layers.
-
-//}
 
 // Set up the legend.
 let legend = L.control({ position: "bottomright" });

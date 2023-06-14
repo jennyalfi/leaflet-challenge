@@ -6,7 +6,7 @@
 // Include popups that provide additional information about the earthquake when its associated marker is clicked. (Location, mag, depth, date/time)
 // Create a legend that will provide context for your map data.
 
-// Store our USGS API endpoint as queryUrl.
+// Create the base layers.
 let street = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution:
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -28,7 +28,7 @@ let overlayMaps = {
   Earthquakes: earthquakes,
 };
 
-// Create our map, giving it the streetmap and earthquakes layers to display on load.
+// Create our map
 let myMap = L.map("map", {
   center: [37.09, -95.71],
   zoom: 5,
@@ -45,66 +45,78 @@ L.control
   .addTo(myMap);
 
 // All earthquakes past 7 days
+// Store our USGS API endpoint as queryUrl.
 let queryUrl =
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
 // Perform a GET request to the query URL/
 d3.json(queryUrl).then(function (data) {
   // Once we get a response, send the data.features object to the createFeatures function.
-  //   createFeatures(data.features);
-  // });
 
   function createFeatures(feature) {
     return {
       fillColor: chooseColor(feature.geometry.coordinates[2]),
       radius: chooseRadius(feature.properties.mag),
       weight: 0.5,
-      color: "red",
+      color: 'red',
+      fillOpacity: 0.6
     };
   }
-  // Define a function that we want to run once for each feature in the features array.
-  // Give each feature a popup that describes the place and time of the earthquake.
-  // function myOnEachFeature(feature, layer) {
-  //   layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}</p>`);
-  // }
+  
+//   // Create the color opacity based on earthquake depth.
+
+
+//   function chooseColor(depth) {
+//     if (depth <= 1.0) {
+//       return (fillOpacity = 0.1);
+//     }
+//     if (depth <= 3.0) {
+//       return (fillOpacity = 0.2);
+//     }
+//     if (depth <= 5.0) {
+//       return (fillOpacity = 0.4);
+//     }
+//     if (depth <= 10.0) {
+//       return (fillOpacity = 0.5);
+//     }
+//     if (depth <= 20.0) {
+//       return (fillOpacity = 0.8);
+//     }
+//     if (depth > 20.0) {
+//       return (fillOpacity = 1.0);
+//     }
+//   }
 
   function chooseColor(depth) {
     if (depth <= 1.0) {
-      return (fillOpacity = 0.1);
-    }
-    if (depth <= 2.0) {
-      return (fillOpacity = 0.1);
+      return (fillColor = '#800026');
     }
     if (depth <= 3.0) {
-      return (fillOpacity = 0.2);
-    }
-    if (depth <= 4.0) {
-      return (fillOpacity = 0.3);
+      return (fillColor = '#BD0026');
     }
     if (depth <= 5.0) {
-      return (fillOpacity = 0.4);
+      return (fillColor = '#E31A1C');
     }
     if (depth <= 10.0) {
-      fillOpacity = 0.5;
-    }
-    if (depth <= 15.0) {
-      fillOpacity = 0.65;
+      return (fillColor = '#FD8D3C');
     }
     if (depth <= 20.0) {
-      fillOpacity = 0.8;
+      return (fillColor = '#FEB24C');
     }
     if (depth > 20.0) {
+      return (fillColor = '#FED976');
     }
   }
 
+  // Create the radius size based on earthquake magnitude.
   function chooseRadius(mag) {
     if (mag === 0) {
       return 1;
     }
-    return mag * 2;
+    return mag * 5;
   }
  
-  // Run the onEachFeature function once for each piece of data in the array.
+  // Give each feature a popup that describes the maginitude and place and time of the earthquake.
   L.geoJSON(data, {
     onEachFeature: function (feature, layer) {
       layer.bindPopup(
@@ -127,11 +139,11 @@ d3.json(queryUrl).then(function (data) {
 let legend = L.control({ position: "bottomright" });
 legend.onAdd = function () {
   let div = L.DomUtil.create("div", "info legend");
-  let limits = [];
-  let colors = [];
+  let limits = [1.0, 3.0, 5.0, 10.0, 20.0];
+  let colors = ["#800026", "#BD0026", "#E31A1C", "#FD8D3C", "#FEB24C", "#FED976"];
   let labels = [];
 
-  // Add the minimum and maximum.
+  // Add the minimum and maximum depth range labels.
   let legendInfo =
     "<h1>Earthquake depth</h1>" +
     '<div class="labels">' +
@@ -146,7 +158,14 @@ legend.onAdd = function () {
   div.innerHTML = legendInfo;
 
   limits.forEach(function (limit, index) {
-    labels.push('<li style="background-color: ' + colors[index] + '"></li>');
+    labels.push(
+      '<li><span class="legend-color" style="background-color: ' +
+        colors[index] +
+        '"></span>' +
+        limit +
+        (limits[index + 1] ? "&ndash;" + limits[index + 1] : "+") +
+        "</li>"
+    );
   });
 
   div.innerHTML += "<ul>" + labels.join("") + "</ul>";
@@ -155,3 +174,4 @@ legend.onAdd = function () {
 
 // Adding the legend to the map
 legend.addTo(myMap);
+

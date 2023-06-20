@@ -63,48 +63,25 @@ d3.json(queryUrl).then(function (data) {
     };
   }
   
-//   // Create the color opacity based on earthquake depth.
-
-
-//   function chooseColor(depth) {
-//     if (depth <= 1.0) {
-//       return (fillOpacity = 0.1);
-//     }
-//     if (depth <= 3.0) {
-//       return (fillOpacity = 0.2);
-//     }
-//     if (depth <= 5.0) {
-//       return (fillOpacity = 0.4);
-//     }
-//     if (depth <= 10.0) {
-//       return (fillOpacity = 0.5);
-//     }
-//     if (depth <= 20.0) {
-//       return (fillOpacity = 0.8);
-//     }
-//     if (depth > 20.0) {
-//       return (fillOpacity = 1.0);
-//     }
-//   }
-
+  // Create marker colors based on depth.
   function chooseColor(depth) {
     if (depth <= 1.0) {
-      return (fillColor = '#800026');
+      return (fillColor = '#FED976');
     }
     if (depth <= 3.0) {
-      return (fillColor = '#BD0026');
-    }
-    if (depth <= 5.0) {
-      return (fillColor = '#E31A1C');
-    }
-    if (depth <= 10.0) {
-      return (fillColor = '#FD8D3C');
-    }
-    if (depth <= 20.0) {
       return (fillColor = '#FEB24C');
     }
+    if (depth <= 5.0) {
+      return (fillColor = '#FD8D3C');
+    }
+    if (depth <= 10.0) {
+      return (fillColor = '#E31A1C');
+    }
+    if (depth <= 20.0) {
+      return (fillColor = '#BD0026');
+    }
     if (depth > 20.0) {
-      return (fillColor = '#FED976');
+      return (fillColor = '#800026');
     }
   }
 
@@ -113,14 +90,14 @@ d3.json(queryUrl).then(function (data) {
     if (mag === 0) {
       return 1;
     }
-    return mag * 5;
+    return mag * 4;
   }
  
   // Give each feature a popup that describes the maginitude and place and time of the earthquake.
   L.geoJSON(data, {
     onEachFeature: function (feature, layer) {
       layer.bindPopup(
-        `<h3>Magnitude: ${feature.properties.mag}</h3><hr><p>${
+        `<h3>Magnitude: ${feature.properties.mag}, Depth: ${feature.geometry.coordinates[2]}</h3><hr><p>${
           feature.properties.place
         }<br>${new Date(feature.properties.time)}</p>`
       );
@@ -140,32 +117,34 @@ let legend = L.control({ position: "bottomright" });
 legend.onAdd = function () {
   let div = L.DomUtil.create("div", "info legend");
   let limits = [1.0, 3.0, 5.0, 10.0, 20.0];
-  let colors = ["#800026", "#BD0026", "#E31A1C", "#FD8D3C", "#FEB24C", "#FED976"];
+  let colors = ["#FED976", "#FEB24C", "#FD8D3C", "#E31A1C", "#BD0026", "#800026"];
   let labels = [];
 
-  // Add the minimum and maximum depth range labels.
-  let legendInfo =
-    "<h1>Earthquake depth</h1>" +
-    '<div class="labels">' +
-    '<div class="min">' +
-    limits[0] +
-    "</div>" +
-    '<div class="max">' +
-    limits[limits.length - 1] +
-    "</div>" +
-    "</div>";
+  // Add the depth range labels.
+  let legendInfo = "<h1>Earthquake Depth</h1>";
 
   div.innerHTML = legendInfo;
 
   limits.forEach(function (limit, index) {
-    labels.push(
-      '<li><span class="legend-color" style="background-color: ' +
-        colors[index] +
-        '"></span>' +
-        limit +
-        (limits[index + 1] ? "&ndash;" + limits[index + 1] : "+") +
-        "</li>"
-    );
+    if (limits[index + 1]) {
+      labels.push(
+        '<li><span class="legend-color" style="background-color: ' +
+          colors[index] +
+          '"></span>' +
+          limit +
+          "&ndash;" +
+          limits[index + 1] +
+          "</li>"
+      );
+    } else {
+      labels.push(
+        '<li><span class="legend-color" style="background-color: ' +
+          colors[index] +
+          '"></span>' +
+          limit +
+          "+</li>"
+      );
+    }
   });
 
   div.innerHTML += "<ul>" + labels.join("") + "</ul>";
